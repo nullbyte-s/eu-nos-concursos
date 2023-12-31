@@ -46,11 +46,13 @@ verificarAutenticacao().then(status => {
                     Usuário
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#" onclick="carregarPagina('authenticated.html')">Painel</a>
+                    <a class="dropdown-item" href="#" onclick="panelClick();carregarPagina('authenticated.html');carregarRodape();">Painel</a>
                     <a class="dropdown-item" href="#" onclick="logout()">Sair</a>
                 </div>
             </div>
         `;
         carregarPagina('authenticated.html');
+        carregarRodape();
+        loadSearchResults();
     }
 });

@@ -12,7 +12,7 @@ try {
     $quantidadeUsuarios = $stmtContarUsuarios->fetchColumn();
 
     // Definir o limite máximo de usuários
-    $limiteUsuarios = 100;
+    $limiteUsuarios = 50;
 
     if ($quantidadeUsuarios >= $limiteUsuarios) {
         // Se atingir o limite, envie uma resposta JSON com erro
@@ -33,13 +33,13 @@ try {
         $usuarioExistente = $stmtVerificar->fetchColumn();
 
         if ($usuarioExistente > 0) {
-            // Se o usuário já existe, envie uma resposta JSON com erro
+            // Se o usuário já existe, envia uma resposta JSON com erro
             $response = ['status' => 'error', 'message' => 'Usuário já existe. Escolha outro nome de usuário.'];
         } else {
-            // Criar um hash da senha
+            // Cria um hash da senha
             $hashSenha = password_hash($senha, PASSWORD_DEFAULT);
 
-            // Armazenar o nome de usuário e o hash da senha no banco de dados
+            // Armazena o nome de usuário e o hash da senha no banco de dados
             $inserirUsuarioSql = "INSERT INTO usuarios (usuario, senha, nome) VALUES (:usuario, :senha, :nome)";
             $stmtInserir = $conexao->prepare($inserirUsuarioSql);
             $stmtInserir->bindParam(":usuario", $usuario, PDO::PARAM_STR);
@@ -47,13 +47,11 @@ try {
             $stmtInserir->bindParam(":nome", $nome, PDO::PARAM_STR);
             $stmtInserir->execute();
 
-            // Se a inserção for bem-sucedida, envie uma resposta JSON com sucesso
             $response = ['status' => 'success', 'message' => 'Usuário cadastrado com sucesso!'];
             $response['redirect'] = 'login.html';
         }
     }
 } catch (PDOException $e) {
-    // Se houver um erro, envie uma resposta JSON com o erro
     $response = ['status' => 'error', 'message' => 'Erro no cadastro: ' . $e->getMessage()];
 }
 
