@@ -54,5 +54,15 @@ verificarAutenticacao().then(status => {
         carregarPagina('authenticated.html');
         carregarRodape();
         loadSearchResults();
+    } else if (status === 'error') {
+        if (token) {
+            localStorage.removeItem('token');
+        }
+        setTimeout(() => {
+            carregarPagina('home.html').then(() => {
+                scrollToTop();
+            });
+        }, 500);
+        carregarRodape();
     }
 });

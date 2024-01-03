@@ -11,7 +11,7 @@
                             manter atualizado.</i>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div class="table-responsive col-lg-8 mb-5">
+                                <div class="table-responsive col-lg-10 mb-5">
                                     <div class="card mt-5 shadow-sm">
                                         <div class="card-header">
                                             <i class="bi bi-file-earmark-medical-fill"></i>
@@ -30,6 +30,10 @@
                                 </div>
                             </div>
                         </div>
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#confirmNotificationsModal"
+                            class="btn btn-outline-info mt-1">
+                            <i class="bi bi-bell"></i>&nbsp;Notificações
+                        </button>&nbsp;
                         <button type="button" data-bs-toggle="modal" data-bs-target="#confirmDeleteAccountModal"
                             class="btn btn-outline-warning mt-1">
                             <i class="bi bi-person-x"></i>&nbsp;Apagar Conta
@@ -38,6 +42,40 @@
                 </div>
             </div>
         </section>
+        <div id="confirmNotificationsModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Notificações no e-mail - Em desenvolvimento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <b>Deseja receber notificações de novas publicações por e-mail?</b><br><br>
+                        <p>Observe que não há garantias de entrega das notificações, servindo apenas como um
+                            complemento.
+                            Certifique-se de acompanhar regularmente o site para não perder nenhuma atualização.</p>
+                        <hr>
+                        <i>Em casos mais raros, o próprio site pode falhar durante a indexação de algumas páginas.
+                            Portanto, reservamos o direito
+                            de não oferecermos qualquer garantia da funcionalidade. Esse site funciona apenas como um
+                            facilitador de
+                            consultas independente e desvinculado
+                            de quaisquer entidades públicas.
+                        </i>
+                        <div class="pt-4 mb-3 d-flex justify-content-center">
+                            <label for="email" class="form-label">e-mail:</label>
+                            <input type="text" id="email" name="email" class="form-control max-width-input" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="checkbox-wrapper-14">
+                            <input id="s1-14" type="checkbox" class="switch"
+                                onclick="checkNotificationStatus();switchNotifications();">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="confirmDeleteAccountModal" class="modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">

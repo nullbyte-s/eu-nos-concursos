@@ -7,7 +7,6 @@
           style="background-color: rgba(251, 192, 114, 0.1);">
           <div class="m-4 m-lg-5">
             <h1 class="display-5 fw-bold">Contato</h1>
-            <i>Em desenvolvimento</i>
             <form class="fs-4" id="contactForm">
               <div class="row">
                 <div class="mb-3 col-md-6">
@@ -24,9 +23,9 @@
                 <textarea id="mensagem" name="mensagem" rows="4" class="form-control" required></textarea>
               </div>
               <div class="d-grid gap-2 col-1 mx-auto">
-                <button type="button" onclick="submitForm()" class="btn btn-primary">Enviar</button>
+                <button type="button" id="sendButton" onclick="submitMessage()" class="btn btn-primary">Enviar</button>
               </div>
-              <div class="d-grid col-1 mx-auto" id="notificacao"></div>
+              <div class="pt-2 d-grid gap-3 col-3 mx-auto" id="notificacao"></div>
             </form>
           </div>
         </div>
