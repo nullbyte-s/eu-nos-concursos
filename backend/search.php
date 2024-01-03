@@ -1,7 +1,15 @@
 <?php
+$ip_address = gethostbyname("***REMOVED***"); 
+sleep(5);
+
 // Verificar se a requisição foi feita pelo servidor
-if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1' && $_SERVER['REMOTE_ADDR'] !== '::1') {
+if (
+    $_SERVER['REMOTE_ADDR'] !== '127.0.0.1' &&
+    $_SERVER['REMOTE_ADDR'] !== '::1' &&
+    $_SERVER['REMOTE_ADDR'] !== $ip_address
+) {
     header("HTTP/1.1 403 Forbidden");
+    // echo $_SERVER['REMOTE_ADDR'];
     exit('Acesso proibido');
 }
 
@@ -21,8 +29,8 @@ try {
     $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
     // API e CX do Google
-    $apiKey = 'sample';
-    $searchEngineId = 'sample';
+	$apiKey = 'sample';
+	$searchEngineId = 'sample';
 
     foreach ($usuarios as $usuario) {
         $nome = $usuario['nome'];
