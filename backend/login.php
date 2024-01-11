@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (isset($_GET["logout"])) {
+	session_destroy();
+	exit();
+}
+
 // Conexão com o banco de dados
 $dsn = 'sqlite:db.sqlite3';
 
@@ -38,6 +45,7 @@ try {
 
             // Senha válida, logar o usuário
             $response = ['status' => 'success', 'message' => 'Login bem-sucedido!', 'token' => $token];
+            $_SESSION['usuario'] = $usuario;
             $response['redirect'] = 'authenticated.html';
             $response['dropdown'] = 'Usuário';
         } else {

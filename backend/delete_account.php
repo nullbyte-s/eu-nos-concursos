@@ -23,18 +23,6 @@ try {
         $stmtUsuario->execute();
         $resultadoUsuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
-        // // Logs para depuração
-        // $sqlLog = $stmtUsuario->queryString;
-        // $paramsLog = print_r($stmtUsuario->debugDumpParams(), true);
-        // error_log("SQL: " . $sqlLog);
-        // error_log("Parâmetros: " . $paramsLog);
-
-        // error_log("Token: " . $token);
-        // error_log("Número de resultados encontrados: " . $stmtUsuario->rowCount());
-        // // Adicione isso após a execução da consulta
-        // $resultLog = print_r($stmtUsuario->fetchAll(), true);
-        // error_log("Resultado da consulta: " . $resultLog);
-
         if ($resultadoUsuario !== false) {
             $idUsuario = $resultadoUsuario['id'];
 

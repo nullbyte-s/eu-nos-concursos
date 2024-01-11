@@ -38,6 +38,45 @@ function submitLoginForm() {
         });
 }
 
+function initAuthenticatedPageLoad() {
+    try {
+        verificarSessao(function (data) {
+            if (data.usuario) {
+                carregarPagina('authenticated.html').then(function () {
+                    carregarRodape();
+                    loadSearchResults();
+                    if (data.usuario === 'admin') {
+                        try {
+                            const response = fetch('backend/contact_table.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data && data.length > 0) {
+                                        document.getElementById('mensagensRecebidas').style.display = 'flex';
+                                        visualizarMensagens(data);
+                                    }
+                                })
+                        } catch (error) {
+                            console.error('Erro ao obter dados das mensagens:', error);
+                        }
+                    }
+                    panelClick();
+                }).catch(function (error) {
+                    console.error('Erro ao carregar a página:', error);
+                });
+            } else {
+                console.log('Usuário não autenticado');
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao obter usuário:', error);
+    }
+}
+
 verificarAutenticacao().then(status => {
     if (status === 'success') {
         document.getElementById('userNavItem').innerHTML = `
@@ -46,15 +85,23 @@ verificarAutenticacao().then(status => {
                     Usuário
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#" onclick="panelClick();carregarPagina('authenticated.html');carregarRodape();loadSearchResults();">Painel</a>
+                    <a class="dropdown-item" href="#" onclick="panelClick();initAuthenticatedPageLoad();">Painel</a>
                     <a class="dropdown-item" href="#" onclick="logout()">Sair</a>
                 </div>
             </div>
         `;
-        carregarPagina('authenticated.html');
-        carregarRodape();
-        loadSearchResults();
-    } else if (status === 'error') {
+
+        // window.addEventListener('load', async function () {
+        //     initAuthenticatedPageLoad();
+        // });
+
+        initAuthenticatedPageLoad();
+
+        // } else if (status === 'error') {
+    } else {
+        fetch('backend/login.php?logout=1', {
+            method: 'GET',
+        })
         if (token) {
             localStorage.removeItem('token');
         }

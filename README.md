@@ -1,4 +1,4 @@
-# Eu nos Concursos (em desenvolvimento)
+# Eu nos Concursos
 
 O projeto "Eu nos Concursos" é uma aplicação web que realiza consultas na internet em busca de novas publicações pertinentes aos concurseiros, facilitando o acompanhamento de convocações em publicações oficiais.
 

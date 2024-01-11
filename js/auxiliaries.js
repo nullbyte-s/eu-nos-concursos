@@ -1,8 +1,9 @@
 var token = localStorage.getItem('token');
 
 if (!token) {
-    carregarPagina("home.html");
-    carregarRodape();
+    carregarPagina('home.html').then(() => {
+        carregarRodape();
+    });
 }
 
 function preload() {
@@ -79,7 +80,6 @@ function verificarAutenticacao() {
             .then(data => {
                 if (data.status === 'success') {
                     resolve('success');
-                    localStorage.setItem('usuario', data.usuario);
                 } else {
                     resolve('error');
                 }
@@ -89,6 +89,17 @@ function verificarAutenticacao() {
                 resolve('error');
             });
     });
+}
+
+function verificarSessao(callback) {
+    fetch('backend/get_session.php')
+        .then(response => response.json())
+        .then(data => {
+            callback(data);
+        })
+        .catch(error => {
+            console.error('Erro ao verificar sessão:', error);
+        });
 }
 
 function submitMessage() {
@@ -137,28 +148,40 @@ function submitMessage() {
                 carregarPagina('home.html').then(() => {
                     scrollToTop();
                 });
+                $("#navbarItems button").removeClass("active");
             }, 2200);
         }
     });
 }
 
 function logout() {
-    localStorage.removeItem('token');
-    setTimeout(() => {
-        carregarPagina('home.html').then(() => {
-            location.reload();
+    fetch('backend/login.php?logout=1', {
+        method: 'GET',
+    })
+        .then(response => {
+            if (response.ok) {
+                localStorage.removeItem('token');
+                setTimeout(() => {
+                    carregarPagina('home.html').then(() => {
+                        location.reload();
+                    });
+                }, 500);
+            } else {
+                console.error('Erro ao realizar logout');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao realizar logout:', error);
         });
-    }, 500);
 }
 
 function apagarConta() {
-    // Verificar se o token está presente
     if (!token) {
         console.error('Token não encontrado. Não é possível apagar a conta.');
         return;
     }
 
-    // Exibir o modal de confirmação
+    // Modal de confirmação
     var confirmDeleteAccountModal = new bootstrap.Modal(document.getElementById('confirmDeleteAccountModal'));
     confirmDeleteAccountModal.show();
 
@@ -192,6 +215,40 @@ function apagarConta() {
         });
 }
 
+function checkNotificationStatus() {
+    fetch('backend/check_notification_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        },
+        body: JSON.stringify({ action: 'check' })
+    })
+        .then(response => {
+            // Verificar se a resposta contém um erro HTTP
+            if (!response.ok) {
+                throw new Error('Erro HTTP: ' + response.status);
+            }
+            // Retornar a resposta como JSON
+            return response.json();
+        })
+        .then(data => {
+            // Verificar se a resposta é um JSON válido
+            if (data && typeof data === 'object') {
+                var checkbox = document.getElementById('s1-14');
+                checkbox.checked = data.notificacao === 1;
+                var emailInput = document.getElementById('email');
+                emailInput.value = data.email;
+            } else {
+                throw new Error('Resposta inválida: ' + JSON.stringify(data));
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao verificar o status da notificação:', error);
+        });
+}
+
+
 function switchNotifications() {
     var emailInput = document.getElementById('email');
     var checkbox = document.getElementById('s1-14');
@@ -211,14 +268,13 @@ function addEmailToTable(email, token) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
+            'Authorization': token
         },
         body: JSON.stringify({ email, action: 'add' })
     })
         .then(response => response.json())
         .then(data => {
-            // TODO: Tratar a resposta do backend
-            console.log(data);
+            displayNotification(data);
         })
         .catch(error => {
             console.error('Erro ao enviar dados para o backend:', error);
@@ -230,35 +286,93 @@ function removeEmailFromTable(token) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
+            'Authorization': token
         },
         body: JSON.stringify({ action: 'remove' })
     })
         .then(response => response.json())
         .then(data => {
-            // TODO: Tratar a resposta do backend
-            console.log(data);
+            displayNotification(data);
         })
         .catch(error => {
             console.error('Erro ao enviar dados para o backend:', error);
         });
 }
 
-function checkNotificationStatus() {
-    fetch('backend/check_notification_status.php', {
+function setupContactTable() {
+    var contactContainer = document.getElementById('contactContainer');
+    if (!contactContainer) {
+        console.error('Elemento #contactContainer não encontrado.');
+        return;
+    }
+
+    // Criar tabela
+    var table = document.createElement('table');
+    table.classList.add('table', 'table-striped', 'table-bordered');
+
+    // Adicionar rótulos das colunas
+    var thead = document.createElement('thead');
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<th>Nome</th><th>Email</th><th>Mensagem</th>';
+    thead.appendChild(tr);
+    table.appendChild(thead);
+
+    // Adicionar corpo da tabela
+    var tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+
+    // Adicionar tabela ao contêiner
+    contactContainer.appendChild(table);
+
+    return tbody;
+}
+
+function visualizarMensagens(data) {
+    var tableBody = setupContactTable();
+
+    // Limpar o conteúdo atual da tabela
+    tableBody.innerHTML = '';
+
+    // Iterar sobre os dados recebidos e preencher a tabela
+    data.forEach(function (row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.nome + '</td>' +
+            '<td>' + row.email + '</td>' +
+            '<td>' + row.mensagem + '</td>';
+        tableBody.appendChild(tr);
+    });
+
+    // Adicionar botão para limpar todas as mensagens
+    var clearButton = document.createElement('button');
+    clearButton.textContent = 'Limpar Mensagens';
+    clearButton.classList.add('btn', 'btn-danger', 'mt-3');
+    clearButton.addEventListener('click', function () {
+        limparMensagens();
+    });
+
+    // Adicionar o botão abaixo da tabela
+    var tableContainer = document.getElementById('contactContainer');
+    tableContainer.appendChild(clearButton);
+}
+
+function limparMensagens() {
+    fetch('backend/clear_messages.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ action: 'check' })
+            'Content-Type': 'application/json'
+        }
     })
         .then(response => response.json())
         .then(data => {
-            var checkbox = document.getElementById('s1-14');
-            checkbox.checked = data.notificacao === 1;
+            if (data.status === 'success') {
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } else {
+                console.error('Erro ao limpar mensagens:', data.message);
+            }
         })
         .catch(error => {
-            console.error('Erro ao verificar o status da notificação:', error);
+            console.error('Erro ao limpar mensagens:', error);
         });
 }
