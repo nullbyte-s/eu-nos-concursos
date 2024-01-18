@@ -216,24 +216,21 @@ function apagarConta() {
 }
 
 function checkNotificationStatus() {
-    fetch('backend/check_notification_status.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-        },
-        body: JSON.stringify({ action: 'check' })
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'Bearer ' + token);
+
+    fetch(`backend/check_notification_status.php?action=check`, {
+        method: 'GET',
+        headers: headers,
     })
         .then(response => {
-            // Verificar se a resposta contém um erro HTTP
             if (!response.ok) {
                 throw new Error('Erro HTTP: ' + response.status);
             }
-            // Retornar a resposta como JSON
             return response.json();
         })
         .then(data => {
-            // Verificar se a resposta é um JSON válido
             if (data && typeof data === 'object') {
                 var checkbox = document.getElementById('s1-14');
                 checkbox.checked = data.notificacao === 1;
@@ -247,7 +244,6 @@ function checkNotificationStatus() {
             console.error('Erro ao verificar o status da notificação:', error);
         });
 }
-
 
 function switchNotifications() {
     var emailInput = document.getElementById('email');
@@ -268,7 +264,7 @@ function addEmailToTable(email, token) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'authorization': token
         },
         body: JSON.stringify({ email, action: 'add' })
     })
@@ -286,7 +282,7 @@ function removeEmailFromTable(token) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'authorization': token
         },
         body: JSON.stringify({ action: 'remove' })
     })

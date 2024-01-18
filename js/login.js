@@ -70,6 +70,7 @@ function initAuthenticatedPageLoad() {
                 });
             } else {
                 console.log('Usuário não autenticado');
+                logout();
             }
         });
     } catch (error) {

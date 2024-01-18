@@ -67,8 +67,8 @@ try {
         $pagina = $result['link'];
 
         // Log: Imprimir título e usuário antes da verificação
-        // error_log("Título antes da verificação: $titulo");
-        // error_log("Nome antes da verificação: $nome");
+        error_log("Título antes da verificação: $titulo");
+        error_log("Nome antes da verificação: $nome");
 
         // Verificar se já existe uma entrada com o mesmo título para o mesmo usuário
         $sqlVerificar = "SELECT * FROM paginas p
@@ -80,7 +80,7 @@ try {
         $stmtVerificar->execute();
 
         // Log: Imprimir número de resultados encontrados
-        // error_log("Número de resultados encontrados: " . $stmtVerificar->rowCount());
+        error_log("Número de resultados encontrados: " . $stmtVerificar->rowCount());
 
         if ($stmtVerificar->rowCount() == 0) {
             // Não há entrada existente, realizar a inserção
@@ -92,7 +92,7 @@ try {
             $stmtInserir->execute();
 
             // Log: Imprimir mensagem de inserção bem-sucedida
-            // error_log("Inserção bem-sucedida: $titulo");
+            error_log("Inserção bem-sucedida: $titulo");
         }
     }
 

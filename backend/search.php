@@ -11,7 +11,7 @@ $dsn = 'sqlite:db.sqlite3';
 try {
     $conexao = new PDO($dsn);
     $conexao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+   
     // API e CX do Google
 	$apiKey = 'apiKey';
 	$searchEngineId = 'searchEngineId';
@@ -28,15 +28,22 @@ try {
             $ultimoUsuarioID = $ultimaDataInfo['id'];
             $ultimaData = $ultimaDataInfo['fila'];
         } else {
+            // Tratar a situação em que não há usuário que atenda aos requisitos
             $ultimoUsuarioID = null;
             $ultimaData = null;
         }
     } else {
+        // Tratar a falha na execução da consulta
         $ultimoUsuarioID = null;
         $ultimaData = null;
     }
 
+    // Verificar se a data existe e é diferente da data atual
     if ($ultimaData) {
+
+        // Contagem de chamadas diárias
+        $chamadasDiarias = 0;
+
         // Se há uma data, encontrar o próximo ID
         $sqlProximoUsuario = "SELECT id FROM usuarios WHERE id > ? ORDER BY id ASC LIMIT 1";
         $stmtProximoUsuario = $conexao->prepare($sqlProximoUsuario);
@@ -49,10 +56,14 @@ try {
             $sqlPrimeiroUsuario = "SELECT id FROM usuarios ORDER BY id ASC LIMIT 1";
             $stmtPrimeiroUsuario = $conexao->query($sqlPrimeiroUsuario);
             $primeiroUsuarioID = $stmtPrimeiroUsuario->fetchColumn();
-            
-            // Definir o próximo usuário como o último para a próxima iteração
+
+            // Definir o último usuário como o primeiro
             $ultimoUsuarioID = $primeiroUsuarioID;
+
+            // Reiniciar a contagem de chamadas diárias
+            $chamadasDiarias = 0;
         } else {
+            // Definir o próximo usuário como o último para a próxima iteração
             $ultimoUsuarioID = $proximoUsuarioID;
         }
 
@@ -64,9 +75,12 @@ try {
         
         // Definir o último usuário como o primeiro, pois não há data encontrada
         $ultimoUsuarioID = $primeiroUsuarioID;
+
+        // Contagem de chamadas diárias
+        $chamadasDiarias = 0;
     }
 
-    $chamadasDiarias = 0;
+    // Definir o número máximo de chamadas diárias permitidas
     $maxChamadasDiarias = 90;
     
     if ($ultimaData !== date('Y-m-d')) {
@@ -145,47 +159,43 @@ try {
                     $stmtInserir->bindValue(2, $titulo, PDO::PARAM_STR);
                     $stmtInserir->bindValue(3, $pagina, PDO::PARAM_STR);
                     $stmtInserir->execute();
-                }
-            }
-        }
-        // Obter os e-mails dos usuários
-        $sqlObterEmail = "SELECT email FROM usuarios WHERE notificacao = '1' AND usuario = ?";
-        $stmtObterEmail = $conexao->prepare($sqlObterEmail);
-        $stmtObterEmail->bindValue(1, $usuario['usuario'], PDO::PARAM_STR);
-        $stmtObterEmail->execute();
-        $rowCount = $stmtObterEmail->fetchColumn();
 
-        if ($rowCount > 0) {
-            
-            $emails = $stmtObterEmail->fetchAll(PDO::FETCH_COLUMN);
-            $mail = new PHPMailer(true);
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-            $mail->isSMTP();
-            $mail->Host       = 'smtp.sample.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'username';
-            $mail->Password   = 'password';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = 465;
-            $mail->setFrom('sender@sample.com', 'Sender');
-            $mail->isHTML(true);
-            $mail->Subject = 'Novas publicações disponíveis';
-            $mail->Body    = 'Olá, você tem novas publicações disponíveis em nosso site. <a href=$url>Acesse para conferir!</a>';
-            $mail->AltBody = 'Olá, você tem novas publicações disponíveis em nosso site. Acesse para conferir: $url';
+                    // Obter os e-mails dos usuários
+                    $sqlObterEmail = "SELECT email FROM usuarios WHERE notificacao = '1' AND usuario = ?";
+                    $stmtObterEmail = $conexao->prepare($sqlObterEmail);
+                    $stmtObterEmail->bindValue(1, $usuario['usuario'], PDO::PARAM_STR);
+                    $stmtObterEmail->execute();
+                    $rowCount = $stmtObterEmail->fetchColumn();
 
-            if (!empty($emails)) {
-                foreach ($emails as $email) {
-                    $mail->addAddress($email);
+                    if ($rowCount > 0) {
+                        
+                        $emails = $stmtObterEmail->fetchAll(PDO::FETCH_COLUMN);
+                        $url = 'https://eunosconcursos.sample/';
+                        $mail = new PHPMailer(true);
+                        $mail->isSendmail();
+                        $mail->setFrom('user@mail.com', 'Eu nos Concursos');
+
+                        if (!empty($emails)) {
+                            foreach ($emails as $email) {
+                                $mail->addAddress($email);
+                            }
+                        } else {
+                            $mail->addAddress($rowCount);
+                        }
+
+                        $mail->isHTML(true);
+                        $mail->Subject = 'Novas publicações disponíveis';
+                        $mail->Body = 'Olá, você tem novas publicações disponíveis em nosso site. <a href=\'{$url}\'>Acesse para conferir!</a>';
+                        $mail->AltBody = 'Olá, você tem novas publicações disponíveis em nosso site. Acesse para conferir: \'{$url}\'';
+                        
+                        try {
+                            $mail->send();
+                            echo 'Mensagem enviada com sucesso!';
+                        } catch (Exception $e) {
+                            echo "A mensagem não pôde ser enviada. Erro do Mensageiro: {$mail->ErrorInfo}";
+                        }
+                    }
                 }
-            } else {
-                $mail->addAddress($rowCount);
-            }
-            
-            try {
-                $mail->send();
-                echo 'Mensagem enviada com sucesso!';
-            } catch (Exception $e) {
-                echo "A mensagem não pôde ser enviada. Erro do Mensageiro: {$mail->ErrorInfo}";
             }
         }
     }
