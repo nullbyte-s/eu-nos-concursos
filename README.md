@@ -147,6 +147,10 @@ curl -I http://localhost:8090
 
 ---
 
+- [Registros de execução do pipeline](https://github.com/nullbyte-s/eu-nos-concursos/tree/main/archives/img)
+
+---
+
 <h5 align="center">
   Made with 💜 by <a href="https://github.com/nullbyte-s/">nullbyte-s</a><br>
   <a href="https://choosealicense.com/licenses/mit/"><br>
