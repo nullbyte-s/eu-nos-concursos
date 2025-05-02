@@ -22,7 +22,7 @@ Este projeto utiliza uma pipeline de integração contínua com **Jenkins** e **
 
 ### Instalando o Jenkins com Docker
 
-Execute o comando abaixo para subir o Jenkins em um container Docker, com acesso ao Docker do host (necessário para builds):
+Execute o comando abaixo para subir o Jenkins em um container Docker, com acesso ao Docker do host (é preciso montar o socket Docker do host dentro do container Jenkins, em /var/run/docker.sock - isto é uma prática necessária para builds):
 
 ```bash
 docker run -d \
@@ -83,7 +83,7 @@ docker restart jenkins
 - **Pipeline**
   - **Definition**: *Pipeline script from SCM*
   - **SCM**: Git
-  - **Repository URL**: `https://github.com/seu-usuario/seu-repositorio.git`
+  - **Repository URL**: `https://github.com/nullbyte-s/eu-nos-concursos.git`
   - Adicione credenciais caso o repositório seja privado
   - **Branch**: `*/main`
   - **Script Path**: `Jenkinsfile`

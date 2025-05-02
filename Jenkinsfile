@@ -27,14 +27,28 @@ pipeline {
                         docker run -d --name eunosconcursos_test -p 8081:80 eunosconcursos:latest
                         echo "Aguardando o container iniciar..."
                         sleep 10
-                        
+
                         echo "Testando endpoint..."
                         curl -I http://host.docker.internal:8081 || (echo "FALHA NO TESTE" && exit 1)
                         sleep 10
-                        
+
                         echo "Removendo container de teste..."
                         docker stop eunosconcursos_test
                         docker rm eunosconcursos_test
+                    '''
+                }
+            }
+        }
+
+        stage('Criar Container de Produção') {
+            steps {
+                script {
+                    sh '''
+                        echo "Removendo container de produção antigo, se existir..."
+                        docker ps -a -q --filter "name=eunosconcursos_prod" | xargs -r docker rm -f
+
+                        echo "Iniciando novo container de produção..."
+                        docker run -d --name eunosconcursos_prod -p 8090:80 eunosconcursos:latest
                     '''
                 }
             }
