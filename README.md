@@ -141,8 +141,8 @@ Se necessário, você pode testar a imagem Docker gerada localmente com:
 
 ```bash
 docker build -t eunosconcursos:latest .
-docker run -d -p 8090:80 eunosconcursos:latest
-curl -I http://localhost:8090
+docker run -d -p 8082:80 eunosconcursos:latest
+curl -I http://localhost:8082
 ```
 
 ---

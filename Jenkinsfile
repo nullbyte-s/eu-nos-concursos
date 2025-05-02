@@ -48,7 +48,7 @@ pipeline {
                         docker ps -a -q --filter "name=eunosconcursos_prod" | xargs -r docker rm -f
 
                         echo "Iniciando novo container de produção..."
-                        docker run -d --name eunosconcursos_prod -p 8090:80 eunosconcursos:latest
+                        docker run -d --name eunosconcursos_prod -p 8082:80 eunosconcursos:latest
                     '''
                 }
             }
